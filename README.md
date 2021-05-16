@@ -1,0 +1,2 @@
+# mazes
+maze generation algorithms
