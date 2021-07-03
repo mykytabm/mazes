@@ -5,7 +5,6 @@ class Cell:
     x = y = 0
     symbol = " "
     walls = []
-    visited = False
 
     def __init__(self, x=0, y=0):
         self.x = x
@@ -13,15 +12,11 @@ class Cell:
         self.walls = [0, 0, 0, 0]
 
 
-class Cell_Data:
-    cell = None
-    neighs = []
-
-
 class Map:
     cells = []
     size_x = 0
     size_y = 0
+    buffer = []
 
     def __init__(self, size_x, size_y):
         self.size_x = size_x
@@ -47,10 +42,8 @@ class Map:
                 hor_wall += "+"
                 cell_vert_wall = " "
                 cell_hor_wall = " "
-                hor_wall += "-" if cell.walls[1] == 1 or (
-                    above_cell != None and above_cell.walls[3] == 1) else " "
-                cell_vert_wall = "|" if cell.walls[0] == 1 or (
-                    previous_cell != None and previous_cell.walls[2] == 1) else " "
+                hor_wall += "-" if cell.walls[1] == 1 or above_cell != None and above_cell.walls[3] == 1 else " "
+                cell_vert_wall = "|" if cell.walls[0] == 1 or previous_cell != None and previous_cell.walls[2] == 1 else " "
 
                 temp_cell_line += cell_vert_wall+cell.symbol
             hor_wall += "+\n"
@@ -73,13 +66,10 @@ def depth_first_search(map):
         cell.symbol = "*"
         cell.walls = [1, 1, 1, 1]
         visited_cells.append(cell_index)
-
-        cell_data = Cell_Data()
-        cell_data.cell = cell
-        cell_data.neighs = []
+        cell_data =dict(cell,[])
         if x > 0:
             if not y*map.size_y+x-1 in visited_cells:
-                cell_data.neighs.append(map.cells[y*map.size_y+x-1])
+                cell_data.append(map.cells[y*map.size_y+x-1])
             else:
                 map.cells[cell_index].walls[1] = 1
                 map.cells[cell_index].walls[3] = 1
@@ -100,40 +90,30 @@ def depth_first_search(map):
                 cell_data.neighs.append(map.cells[(y+1)*map.size_y+x])
             else:
                 map.cells[cell_index].walls[3] = 1
-
-        cells_data.append(cell_data)
-        return cell_data
+            cells_data.append(cell_data)
+        # while len(neighbour_cells) > 0:
+        #     next_cell_id = random.randrange(0, len(neighbour_cells), 1)
+        #     cell.walls[next_cell_id] = 0
+        #     next_cell = neighbour_cells[next_cell_id]
+        #     neighbour_cells.pop(next_cell_id)
+        #     map.draw()
+        #     mark_cell(next_cell.x, next_cell.y)
 
     def remove_wall(cell_a, cell_b):
-        if cell_a.x > cell_b.x and cell_a.y == cell_b.y:
-            cell_a.walls[0] = 0
-            cell_b.walls[2] = 0
-        if cell_a.x < cell_b.x and cell_a.y == cell_b.y:
-            cell_a.walls[2] = 0
-            cell_b.walls[0] = 0
-        if cell_a.x == cell_b.x and cell_a.y > cell_b.y:
-            cell_a.walls[1] = 0
-            cell_b.walls[3] = 0
-        if cell_a.x == cell_b.x and cell_a.y < cell_b.y:
-            cell_a.walls[3] = 0
-            cell_b.walls[1] = 0
 
-    def depth_first(cell_data):
-        visited_cells.append(cell_data.cell)
-        while len(cell_data.neighs) > 0:
-            next_cell = cell_data.neighs.pop(
-                random.randrange(0, len(cell_data.neighs), 1))
-            if next_cell not in visited_cells:
-                data = mark_cell(next_cell.x, next_cell.y)
-                remove_wall(cell_data.cell, next_cell)
-                depth_first(data)
+        return 0
 
-    depth_first(mark_cell(start_cell_x, start_cell_y))
+    mark_cell(start_cell_x, start_cell_y)
+    next_cell_id = random.randrange(0, len(cells_data), 1)
+    neighbours = cells_data[next_cell_id].neighs
+    next_cell = neighbours[random.randrange(0, len(neighbours))]
+    mark_cell(next_cell.x, next_cell.y)
+    remove_wall(cells_data[next_cell_id].cell, next_cell)
 
 
 def Start():
-    map_size_x = 5
-    map_size_y = 5
+    map_size_x = 10
+    map_size_y = 10
     map = Map(map_size_x, map_size_y)
 
     # algorithm
